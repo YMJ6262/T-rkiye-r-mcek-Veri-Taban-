@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Türkiye Örümcek Rehberi & Araknoloji Portalı</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #030712; color: #f3f4f6; }
+        .glass-panel { background: rgba(17, 24, 39, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-hover:hover { transform: translateY(-6px); box-shadow: 0 20px 30px -10px rgba(16, 185, 129, 0.15); }
+        .badge-safe { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-mild { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-emerald-500 selection:text-white">
+
+    <!-- Üst Navigasyon -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-gray-950 font-bold text-2xl shadow-lg shadow-emerald-500/20">
+                    <i class="fa-solid fa-spider"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
+                        TÜRKİYE ÖRÜMCEK REHBERİ
+                        <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30 uppercase font-mono">Ulusal Veritabanı</span>
+                    </h1>
+                    <p class="text-xs text-gray-400">Türkiye Araknofaunası, Biyo-Çeşitlilik ve Tıbbi Bilgi Portalı</p>
+                </div>
+            </div>
+            
+            <!-- Sekme Butonları -->
+            <div class="hidden md:flex gap-1 bg-gray-900/80 p-1.5 rounded-xl border border-gray-800">
+                <button onclick="switchTab('species')" id="tab-btn-species" class="px-4 py-2 rounded-lg text-xs font-semibold transition bg-emerald-500 text-gray-950 shadow-md">
+                    <i class="fa-solid fa-database mr-1.5"></i> Örümcek Tür Veritabanı
+                </button>
+                <button onclick="switchTab('medical')" id="tab-btn-medical" class="px-4 py-2 rounded-lg text-xs font-semibold transition text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-kit-medical mr-1.5"></i> Isırıklar & İlk Yardım
+                </button>
+                <button onclick="switchTab('eco')" id="tab-btn-eco" class="px-4 py-2 rounded-lg text-xs font-semibold transition text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-leaf mr-1.5"></i> Ekolojik Önem
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Ana İçerik -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+
+        <!-- İstatistik Barı -->
+        <section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="glass-panel p-5 rounded-2xl flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-medium text-gray-400 uppercase tracking-wider block">Kayıtlı Tür Sayısı</span>
+                    <span class="text-2xl font-extrabold text-white mt-1 block" id="stat-total">0</span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-lg border border-blue-500/20"><i class="fa-solid fa-dna"></i></div>
+            </div>
+            <div class="glass-panel p-5 rounded-2xl flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-medium text-gray-400 uppercase tracking-wider block">Zararsız Türler</span>
+                    <span class="text-2xl font-extrabold text-emerald-400 mt-1 block" id="stat-safe">0</span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg border border-emerald-500/20"><i class="fa-solid fa-shield-halved"></i></div>
+            </div>
+            <div class="glass-panel p-5 rounded-2xl flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-medium text-gray-400 uppercase tracking-wider block">Tıbbi Önemli Türler</span>
+                    <span class="text-2xl font-extrabold text-rose-400 mt-1 block" id="stat-danger">0</span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-lg border border-rose-500/20"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            </div>
+            <div class="glass-panel p-5 rounded-2xl flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-medium text-gray-400 uppercase tracking-wider block">Kapsanan Bölge</span>
+                    <span class="text-2xl font-extrabold text-amber-400 mt-1 block">7 Bölge</span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-lg border border-amber-500/20"><i class="fa-solid fa-map-location-dot"></i></div>
+            </div>
+        </section>
+
+        <!-- SEKMELER: 1. ÖRÜMCEK VERİTABANI -->
+        <div id="tab-content-species" class="space-y-6">
+            
+            <!-- Arama ve Süzgeç Modülü -->
+            <section class="glass-panel p-6 rounded-2xl space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-gray-500 text-sm"></i>
+                        <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Örümcek adı, Latince veya familya..." 
+                               class="w-full pl-10 pr-4 py-2.5 bg-gray-950 border border-gray-800 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <select id="regionFilter" onchange="applyFilters()" class="w-full px-3.5 py-2.5 bg-gray-950 border border-gray-800 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-emerald-500">
+                            <option value="all">Tüm Coğrafi Bölgeler (Türkiye)</option>
+                            <option value="Marmara">Marmara Bölgesi</option>
+                            <option value="Ege">Ege Bölgesi</option>
+                            <option value="Akdeniz">Akdeniz Bölgesi</option>
+                            <option value="IcAnadolu">İç Anadolu Bölgesi</option>
+                            <option value="Karadeniz">Karadeniz Bölgesi</option>
+                            <option value="DoguAnadolu">Doğu Anadolu Bölgesi</option>
+                            <option value="Guneydogu">Güneydoğu Anadolu Bölgesi</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="toxicityFilter" onchange="applyFilters()" class="w-full px-3.5 py-2.5 bg-gray-950 border border-gray-800 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-emerald-500">
+                            <option value="all">Tüm Tıbbi Etki Seviyeleri</option>
+                            <option value="safe">✅ Tıbbi Önemsiz / Zararsız</option>
+                            <option value="mild">⚠️ Hafif Lokal Etki (Arı Isırığı Dengi)</option>
+                            <option value="danger">🚨 Tıbbi Önemli (Doktora Başvurulmalı)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="huntingFilter" onchange="applyFilters()" class="w-full px-3.5 py-2.5 bg-gray-950 border border-gray-800 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-emerald-500">
+                            <option value="all">Tüm Avlanma Metotları</option>
+                            <option value="Orb">Küre Dairesel Ağ Dokuyucu</option>
+                            <option value="Ambusher">Pusu / Çiçek Avcısı</option>
+                            <option value="Jumper">Zıplayan Görsel Avcı</option>
+                            <option value="Funnel">Huni / Tünel Ağ Dokuyucu</option>
+                            <option value="Wanderer">Serbest Koşucu / Kurt Örümceği</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tür Kartları Izgarası -->
+            <main id="speciesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- JavaScript dinamik basacak -->
+            </main>
+        </div>
+
+        <!-- SEKMELER: 2. TIBBİ İLK YARDIM REHBERİ -->
+        <div id="tab-content-medical" class="hidden space-y-6">
+            <div class="glass-panel p-8 rounded-2xl border border-gray-800 space-y-6">
+                <div class="border-b border-gray-800 pb-4">
+                    <h2 class="text-2xl font-bold text-rose-400 flex items-center gap-3">
+                        <i class="fa-solid fa-notes-medical"></i> Türkiye'de Örümcek Isırıkları ve İlk Yardım Protokolü
+                    </h2>
+                    <p class="text-sm text-gray-400 mt-1">Türkiye'de bulunan örümcek türlerinin %98'den fazlası insan sağlığı için tamamen zararsızdır.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 space-y-3">
+                        <h3 class="text-lg font-bold text-amber-400 flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Türkiye'nin Tıbbi Önemli Türleri
+                        </h3>
+                        <p class="text-xs text-gray-300 leading-relaxed">
+                            Ülkemizde tıbbi müdahale gerektirebilecek yalnızca iki ana gruptan söz edilebilir:
+                        </p>
+                        <ul class="text-xs text-gray-300 space-y-2 list-disc list-inside">
+                            <li><strong class="text-white">Karadul Türleri (Latrodectus tredecimguttatus):</strong> Güçlü nörotoksik venom taşır. Kas ağrısı, kramp ve terlemeye yol açabilir.</li>
+                            <li><strong class="text-white">Akdeniz İzolasyon Örümceği (Loxosceles rufescens):</strong> Sitotoksik venom taşır. Nadiren lokal doku hasarına (nekroz) sebebiyet verebilir.</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 space-y-3">
+                        <h3 class="text-lg font-bold text-emerald-400 flex items-center gap-2">
+                            <i class="fa-solid fa-user-nurse"></i> Isırık Anında Yapılması Gerekenler
+                        </h3>
+                        <ol class="text-xs text-gray-300 space-y-2.5 list-decimal list-inside">
+                            <li><strong>Sakin Kalın:</strong> Panik yapmak kan dolaşımını ve venom yayılımını hızlandırır.</li>
+                            <li><strong>Alanı Yıkayın:</strong> Isırık bölgesini sabun ve bol soğuk suyla yıkayarak dezenfekte edin.</li>
+                            <li><strong>Soğuk Kompres Uygulayın:</strong> Şişlik ve ağrıyı azaltmak için buz paketini bez üzerinden uygulayın.</li>
+                            <li><strong>Türü Fotoğraflayın:</strong> Mümkünse örümceğin fotoğrafını çekin veya güvenli şekilde yakalayın.</li>
+                            <li><strong>Sağlık Kuruluşuna Başvurun:</strong> Şiddetli ağrı veya baş dönmesi durumunda 112'yi arayın veya acil servise gidin.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEKMELER: 3. EKOLOJİK ÖNEM -->
+        <div id="tab-content-eco" class="hidden space-y-6">
+            <div class="glass-panel p-8 rounded-2xl border border-gray-800 space-y-6">
+                <div class="border-b border-gray-800 pb-4">
+                    <h2 class="text-2xl font-bold text-emerald-400 flex items-center gap-3">
+                        <i class="fa-solid fa-bug-slash"></i> Örümceklerin Doğal Ekosistemdeki Kritik Rolü
+                    </h2>
+                    <p class="text-sm text-gray-400 mt-1">Örümcekler, dünya üzerindeki en etkili biyolojik zararlı kontrol mekanizmasıdır.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-gray-300">
+                    <div class="bg-gray-950 p-5 rounded-xl border border-gray-800">
+                        <i class="fa-solid fa-wheat-awn text-emerald-400 text-2xl mb-3 block"></i>
+                        <h4 class="font-bold text-white text-sm mb-2">Tarım Dostu Biyolojik Kontrol</h4>
+                        <p class="leading-relaxed">Örümcekler yılda milyonlarca ton tarlaya zararlı böceği avlayarak tarım ilacı kullanım ihtiyacını azaltır.</p>
+                    </div>
+                    <div class="bg-gray-950 p-5 rounded-xl border border-gray-800">
+                        <i class="fa-solid fa-house-chimney-medical text-blue-400 text-2xl mb-3 block"></i>
+                        <h4 class="font-bold text-white text-sm mb-2">Hastalık Taşıyan Vektör Temizliği</h4>
+                        <p class="leading-relaxed">Ev çevrelerinde yaşayan örümcekler; sivrisinek, karasinek ve hamamböceği gibi canlıları avlayarak ev içi hijyeni korur.</p>
+                    </div>
+                    <div class="bg-gray-950 p-5 rounded-xl border border-gray-800">
+                        <i class="fa-solid fa-vial text-purple-400 text-2xl mb-3 block"></i>
+                        <h4 class="font-bold text-white text-sm mb-2">Biyotıp ve İpek Teknolojisi</h4>
+                        <p class="leading-relaxed">Örümcek ipeği çelikten 5 kat daha sağlamdır. Örümcek zehirleri tıp alanında ağrı kesici modellemelerinde kullanılmaktadır.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Detay & Taksonomi Modalı -->
+    <div id="detailModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+        <div class="bg-gray-900 border border-gray-700 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 relative shadow-2xl">
+            <button onclick="closeModal()" class="absolute top-5 right-5 text-gray-400 hover:text-white transition w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center border border-gray-700">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- Veritabanı ve Mantık (JavaScript) -->
+    <script>
+        const turkiyeOrumcekVeritabanı = [
+            {
+                id: "TUR-001",
+                trName: "Akdeniz Karadulu / 13 Benekli Karadul",
+                latinName: "Latrodectus tredecimguttatus",
+                family: "Theridiidae",
+                region: ["Marmara", "Ege", "Akdeniz", "IcAnadolu", "Guneydogu"],
+                regionText: "Akdeniz, Ege, İç & Güneydoğu Anadolu",
+                toxicityLevel: "danger",
+                toxicityText: "Tıbbi Önemli (Nörotoksik)",
+                huntingType: "Funnel",
+                img: "https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&w=800&q=80",
+                habitat: "Kuru otluklar, taş altları, terk edilmiş tarım alanları.",
+                size: "Dişi: 10-15 mm | Erkek: 4-7 mm",
+                desc: "Siyah parlak abdomen üzerinde 13 adet kırmızı/turuncu benek taşır. Taşıdığı alfa-latrotoksin nedeniyle ısırığı kas ağrılarına sebep olabilir. Dokunulmadıkça ısırmaz."
+            },
+            {
+                id: "TUR-002",
+                trName: "Akdeniz İzolasyon Örümceği",
+                latinName: "Loxosceles rufescens",
+                family: "Sicariidae",
+                region: ["Ege", "Akdeniz", "Marmara", "IcAnadolu"],
+                regionText: "Ege, Akdeniz, Marmara",
+                toxicityLevel: "danger",
+                toxicityText: "Tıbbi Önemli (Sitotoksik)",
+                huntingType: "Wanderer",
+                img: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80",
+                habitat: "Karanlık ve kuytu köşeler, depo alanları, taş ve kütük altları.",
+                size: "7-10 mm gövde boyu",
+                desc: "Sırt kısmındaki keman benzeri koyu leke ile tanınır. Gece aktif pusu avcısıdır. Venomındaki sfingomiyelinaz D enzimi lokal doku reaksiyonlarına neden olabilir."
+            },
+            {
+                id: "TUR-003",
+                trName: "Türk Kuş Yiyen Örümceği (Tarantula)",
+                latinName: "Chaetopelma olivaceum",
+                family: "Theraphosidae",
+                region: ["Akdeniz", "Guneydogu"],
+                regionText: "Doğu Akdeniz & Güneydoğu Anadolu",
+                toxicityLevel: "mild",
+                toxicityText: "Hafif Lokal Etkili",
+                huntingType: "Wanderer",
+                img: "https://images.unsplash.com/photo-1568283096533-0dd839c3186a?auto=format&fit=crop&w=800&q=80",
+                habitat: "Toprak inleri, taş duvar kaviteleri, zeytinlikler.",
+                size: "Gövde: 30-55 mm | Bacak Açıklığı: 100+ mm",
+                desc: "Türkiye'deki tek tarantula familyası üyesidir. İri ve tüylü yapısına rağmen insan sağlığı açısından zararsızdır; ısırığı arı sokmasıyla eş değerdir."
+            },
+            {
+                id: "TUR-004",
+                trName: "Arı Örümceği / Kaplan Örümceği",
+                latinName: "Argiope bruennichi",
+                family: "Araneidae",
+                region: ["Karadeniz", "Marmara", "Ege", "IcAnadolu"],
+                regionText: "Tüm Karadeniz, Marmara & Ege",
+                toxicityLevel: "safe",
+                toxicityText: "Tıbbi Önemsiz / Zararsız",
+                huntingType: "Orb",
+                img: "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&w=800&q=80",
+                habitat: "Nemli yüksek otluklar, çayır vegetasyonu.",
+                size: "Dişi: 15-20 mm | Erkek: 5 mm",
+                desc: "Sarı-siyah enine çizgili uyarısı deseniyle sarıarılara benzer. Ağının ortasına 'stabilimentum' adlı zikzak ipek şerit çeker. Tamamen zararsızdır."
+            },
+            {
+                id: "TUR-005",
+                trName: "Çiçek Yengeç Örümceği",
+                latinName: "Thomisus onustus",
+                family: "Thomisidae",
+                region: ["Marmara", "Ege", "Akdeniz", "Karadeniz", "IcAnadolu", "DoguAnadolu", "Guneydogu"],
+                regionText: "Tüm Türkiye Coğrafyası",
+                toxicityLevel: "safe",
+                toxicityText: "Tıbbi Önemsiz / Zararsız",
+                huntingType: "Ambusher",
+                img: "https://images.unsplash.com/photo-1582083375836-e6669931b268?auto=format&fit=crop&w=800&q=80",
+                habitat: "Çiçek taç yaprakları ve renkli bitki örtüsü.",
+                size: "Dişi: 7-10 mm | Erkek: 3-5 mm",
+                desc: "Bulunduğu çiçeğin rengine göre renk değiştirebilen bukalemun benzeri bir pusu avcısıdır. Yengeç gibi yanlamasına yürür."
+            },
+            {
+                id: "TUR-006",
+                trName: "Kırmızı Zıplayan Örümcek",
+                latinName: "Philaeus chrysops",
+                family: "Salticidae",
+                region: ["Marmara", "Ege", "Akdeniz", "Karadeniz", "IcAnadolu"],
+                regionText: "Güneşli Kaya Yüzeyleri (Tüm Türkiye)",
+                toxicityLevel: "safe",
+                toxicityText: "Tıbbi Önemsiz / Zararsız",
+                huntingType: "Jumper",
+                img: "https://images.unsplash.com/photo-1563281577-a7be47e20db9?auto=format&fit=crop&w=800&q=80",
+                habitat: "Taş duvarlar, güneş gören kayalıklar.",
+                size: "7-12 mm",
+                desc: "Erkekleri göz alıcı parlak kırmızı/turuncu gövdeye sahiptir. 8 gözü sayesinde yüksek çözünürlüklü 3D görüşe sahiptir ve avının üzerine sıçrar."
+            },
+            {
+                id: "TUR-007",
+                trName: "Büyük Kurt Örümceği (Türk Tarantulası)",
+                latinName: "Lycosa praegrandis",
+                family: "Lycosidae",
+                region: ["IcAnadolu", "Marmara", "Ege", "DoguAnadolu"],
+                regionText: "İç Anadolu, Marmara & Doğu Anadolu",
+                toxicityLevel: "mild",
+                toxicityText: "Hafif Lokal Etkili",
+                huntingType: "Wanderer",
+                img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80",
+                habitat: "Toprak delikleri, kurak çayırlar.",
+                size: "30-40 mm gövde boyu",
+                desc: "Gece aktif çalışan hızlı bir zemin avcısıdır. Dişiler yumurta kesesini abdomeninin arkasında taşır, yavrular yumurtadan çıkınca annenin sırtına tırmanır."
+            },
+            {
+                id: "TUR-008",
+                trName: "Uğur Böceği Örümceği",
+                latinName: "Eresus walckenaeri / Eresus kollari",
+                family: "Eresidae",
+                region: ["Ege", "Akdeniz", "Marmara", "IcAnadolu"],
+                regionText: "Marmara, Ege & Akdeniz Çalımlıkları",
+                toxicityLevel: "mild",
+                toxicityText: "Hafif Lokal Etkili",
+                huntingType: "Ambusher",
+                img: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=800&q=80",
+                habitat: "Kuru yamaçlar, çakıllıklar ve bodur çalı dipleri.",
+                size: "10-20 mm",
+                desc: "Erkek bireyler uğur böceğine benzeyen parlak kırmızı ve siyah benekli bir abdomen taşır. Yeraltında ipek tüp yuvalarda yaşar."
+            },
+            {
+                id: "TUR-009",
+                trName: "Uzun Bacaklı Mahzen Örümceği",
+                latinName: "Pholcus phalangioides",
+                family: "Pholcidae",
+                region: ["Marmara", "Ege", "Akdeniz", "Karadeniz", "IcAnadolu", "DoguAnadolu", "Guneydogu"],
+                regionText: "Ev İçi & Depo Alanları (Türkiye Geneli)",
+                toxicityLevel: "safe",
+                toxicityText: "Tıbbi Önemsiz / Zararsız",
+                huntingType: "Orb",
+                img: "https://images.unsplash.com/photo-1589656966895-2f33e7653819?auto=format&fit=crop&w=800&q=80",
+                habitat: "Bina içleri, tavan köşeleri, bodrumlar.",
+                size: "7-10 mm gövde | 50 mm bacaklar",
+                desc: "İnce ve çok uzun bacaklarıyla tanınır. Tehdit anında ağının içinde hızlıca sallanarak bulanık bir görüntü oluşturur. Evdeki sivrisinekleri temizler."
+            }
+        ];
+
+        function switchTab(tabName) {
+            ['species', 'medical', 'eco'].forEach(t => {
+                document.getElementById(`tab-content-${t}`).classList.add('hidden');
+                const btn = document.getElementById(`tab-btn-${t}`);
+                btn.className = "px-4 py-2 rounded-lg text-xs font-semibold transition text-gray-400 hover:text-white";
+            });
+
+            document.getElementById(`tab-content-${tabName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+            activeBtn.className = "px-4 py-2 rounded-lg text-xs font-semibold transition bg-emerald-500 text-gray-950 shadow-md";
+        }
+
+        function renderGrid(data) {
+            const grid = document.getElementById('speciesGrid');
+            grid.innerHTML = '';
+
+            if (data.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-16 text-center text-gray-500 font-mono">Aradığınız kriterlere uygun örümcek kaydı bulunamadı.</div>`;
+                return;
+            }
+
+            data.forEach(item => {
+                let badgeClass = "badge-safe";
+                if(item.toxicityLevel === 'mild') badgeClass = "badge-mild";
+                if(item.toxicityLevel === 'danger') badgeClass = "badge-danger";
+
+                const card = document.createElement('div');
+                card.className = "glass-panel rounded-2xl overflow-hidden flex flex-col justify-between card-hover border border-gray-800";
+
+                card.innerHTML = `
+                    <div>
+                        <div class="h-48 w-full overflow-hidden relative">
+                            <img src="${item.img}" alt="${item.trName}" class="w-full h-full object-cover transition duration-500 hover:scale-110" loading="lazy">
+                            <span class="absolute top-3 right-3 text-[11px] px-2.5 py-1 rounded-full font-semibold ${badgeClass}">
+                                ${item.toxicityText}
+                            </span>
+                            <span class="absolute bottom-3 left-3 text-[10px] bg-black/60 backdrop-blur-md text-gray-300 px-2 py-0.5 rounded font-mono">
+                                ${item.id}
+                            </span>
+                        </div>
+                        <div class="p-5">
+                            <h3 class="text-lg font-bold text-white mb-0.5">${item.trName}</h3>
+                            <p class="text-xs italic text-emerald-400 font-mono mb-4">${item.latinName}</p>
+                            
+                            <div class="space-y-2 text-xs text-gray-300">
+                                <div class="flex justify-between border-b border-gray-800 pb-1.5">
+                                    <span class="text-gray-500">Familya:</span>
+                                    <span class="font-medium text-gray-200">${item.family}</span>
+                                </div>
+                                <div class="flex justify-between border-b border-gray-800 pb-1.5">
+                                    <span class="text-gray-500">Dağılım:</span>
+                                    <span class="font-medium text-gray-200 text-right">${item.regionText}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-5 pt-0">
+                        <button onclick="openModal('${item.id}')" class="w-full py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-200 text-xs font-semibold rounded-xl border border-gray-700 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-microscope text-gray-400"></i> Detaylı Bilgi & Detaylar
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function updateStats(data) {
+            document.getElementById('stat-total').innerText = data.length;
+            document.getElementById('stat-safe').innerText = data.filter(d => d.toxicityLevel === 'safe').length;
+            document.getElementById('stat-danger').innerText = data.filter(d => d.toxicityLevel === 'danger').length;
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const region = document.getElementById('regionFilter').value;
+            const tox = document.getElementById('toxicityFilter').value;
+            const hunt = document.getElementById('huntingFilter').value;
+
+            const filtered = turkiyeOrumcekVeritabanı.filter(item => {
+                const matchSearch = item.trName.toLowerCase().includes(search) || 
+                                    item.latinName.toLowerCase().includes(search) || 
+                                    item.family.toLowerCase().includes(search);
+                const matchRegion = region === 'all' || item.region.includes(region);
+                const matchTox = tox === 'all' || item.toxicityLevel === tox;
+                const matchHunt = hunt === 'all' || item.huntingType === hunt;
+
+                return matchSearch && matchRegion && matchTox && matchHunt;
+            });
+
+            renderGrid(filtered);
+            updateStats(filtered);
+        }
+
+        function openModal(id) {
+            const item = turkiyeOrumcekVeritabanı.find(d => d.id === id);
+            if(!item) return;
+
+            const content = document.getElementById('modalContent');
+            content.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="h-64 rounded-xl overflow-hidden border border-gray-800">
+                        <img src="${item.img}" alt="${item.trName}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-mono text-emerald-400 block mb-1">${item.id} • ${item.family}</span>
+                            <h2 class="text-2xl font-bold text-white mb-1">${item.trName}</h2>
+                            <p class="text-sm italic text-gray-400 font-mono mb-4">${item.latinName}</p>
+                        </div>
+                        <div class="space-y-2 text-xs">
+                            <div class="bg-gray-950 p-2.5 rounded-lg border border-gray-800">
+                                <span class="text-gray-500 block">Boyut Bilgisi</span>
+                                <span class="text-gray-200 font-semibold">${item.size}</span>
+                            </div>
+                            <div class="bg-gray-950 p-2.5 rounded-lg border border-gray-800">
+                                <span class="text-gray-500 block">Tıbbi Toksisite Durumu</span>
+                                <span class="text-gray-200 font-semibold">${item.toxicityText}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4 text-xs text-gray-300">
+                    <div>
+                        <h4 class="font-semibold text-white mb-1 text-sm">Habitat ve Yaşam Alanı</h4>
+                        <p class="bg-gray-950 p-3 rounded-xl border border-gray-800 leading-relaxed">${item.habitat}</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-emerald-400 mb-1 text-sm">Taksonomik Tanım ve Biyo-Ekoloji</h4>
+                        <p class="bg-gray-950 p-3.5 rounded-xl border border-gray-800 text-gray-300 leading-relaxed">${item.desc}</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('detailModal').classList.remove('hidden');
+            document.getElementById('detailModal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+            document.getElementById('detailModal').classList.remove('flex');
+        }
+
+        renderGrid(turkiyeOrumcekVeritabanı);
+        updateStats(turkiyeOrumcekVeritabanı);
+    </script>
+</body>
+</html>
