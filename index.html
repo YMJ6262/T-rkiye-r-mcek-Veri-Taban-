@@ -1,627 +1,528 @@
 <!DOCTYPE html>
-<html lang="tr" class="dark">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">Global Spider Guide & Arachnology Portal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #030712; color: #f3f4f6; }
-        .glass-panel { background: rgba(17, 24, 39, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .card-hover:hover { transform: translateY(-6px); box-shadow: 0 20px 30px -10px rgba(16, 185, 129, 0.15); }
-        .badge-safe { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
-        .badge-mild { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-        .badge-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title id="seoTitle">World Spider Guide - Global Species Database & Diagnostic Portal</title>
+  <meta name="description" id="seoDesc" content="Explore global spider species, habitat maps, venom ratings, emergency diagnostic tools, and care guides.">
+  
+  <link rel="alternate" hreflang="en" href="https://worldspiderguide.com/?lang=en" />
+  <link rel="alternate" hreflang="tr" href="https://worldspiderguide.com/?lang=tr" />
+  <link rel="alternate" hreflang="x-default" href="https://worldspiderguide.com/" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "World Spider Guide",
+    "alternateName": "Dünya Örümcek Rehberi",
+    "url": "https://worldspiderguide.com"
+  }
+  </script>
+
+  <!-- External Libraries -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --card-bg: #1e293b;
+      --border-color: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-primary: #38bdf8;
+      --risk-safe: #22c55e;
+      --risk-warn: #eab308;
+      --risk-danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background-color: var(--bg-dark); color: var(--text-main); line-height: 1.6; padding-bottom: 60px; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+      padding: 30px 20px; border-bottom: 1px solid var(--border-color);
+    }
+    .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .logo-box h1 { font-size: 2rem; font-weight: 800; color: var(--text-main); }
+    .logo-box h1 i { color: var(--accent-primary); }
+    
+    .lang-btn {
+      background-color: var(--card-bg); border: 1px solid var(--accent-primary);
+      color: var(--text-main); padding: 8px 16px; border-radius: 20px;
+      cursor: pointer; font-weight: 700; transition: all 0.2s;
+    }
+    .lang-btn:hover { background-color: var(--accent-primary); color: #0f172a; }
+
+    /* Titles */
+    .section-title {
+      font-size: 1.5rem; font-weight: 700; margin: 40px 0 20px 0;
+      display: flex; align-items: center; gap: 12px;
+      border-bottom: 2px solid var(--border-color); padding-bottom: 10px;
+    }
+    .section-title i { color: var(--accent-primary); }
+
+    /* Controls */
+    .controls-panel {
+      background-color: var(--card-bg); padding: 20px; border-radius: 12px;
+      border: 1px solid var(--border-color); display: flex; flex-wrap: wrap; gap: 15px;
+    }
+    .search-box { flex: 1; min-width: 250px; position: relative; }
+    .search-box input {
+      width: 100%; padding: 12px 16px 12px 42px; background-color: var(--bg-dark);
+      border: 1px solid var(--border-color); border-radius: 8px; color: #fff; font-size: 0.95rem;
+    }
+    .search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+    .filter-group { display: flex; gap: 10px; flex-wrap: wrap; }
+    .filter-select {
+      background-color: var(--bg-dark); border: 1px solid var(--border-color);
+      color: #fff; padding: 12px 16px; border-radius: 8px; cursor: pointer;
+    }
+
+    /* Grid & Cards */
+    .spider-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 25px; margin-top: 25px; }
+    .spider-card {
+      background-color: var(--card-bg); border-radius: 14px; border: 1px solid var(--border-color);
+      overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s ease;
+    }
+    .spider-card:hover { transform: translateY(-5px); }
+    .card-img-holder { height: 150px; background-color: #0f172a; display: flex; align-items: center; justify-content: center; position: relative; }
+    .card-img-holder i { font-size: 3.5rem; color: #334155; }
+    .badge-venom { position: absolute; top: 12px; right: 12px; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .venom-safe { background: rgba(34, 197, 94, 0.2); color: var(--risk-safe); border: 1px solid var(--risk-safe); }
+    .venom-warn { background: rgba(234, 179, 8, 0.2); color: var(--risk-warn); border: 1px solid var(--risk-warn); }
+    .venom-danger { background: rgba(239, 68, 68, 0.2); color: var(--risk-danger); border: 1px solid var(--risk-danger); }
+    .card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+    .spider-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 2px; }
+    .spider-latin { font-size: 0.85rem; font-style: italic; color: var(--text-muted); margin-bottom: 12px; }
+    .spider-meta { font-size: 0.85rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 6px; margin-bottom: 15px; }
+    .btn-detail {
+      margin-top: auto; background-color: var(--accent-primary); color: #0f172a;
+      border: none; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%;
+    }
+
+    /* Diagnostic Module */
+    .diag-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 25px; margin-top: 30px; }
+    .diag-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; }
+    .step-indicator { display: flex; gap: 8px; }
+    .step-dot { width: 28px; height: 28px; border-radius: 50%; background: #0f172a; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; color: var(--text-muted); }
+    .step-dot.active { background: var(--accent-primary); color: #0f172a; border-color: var(--accent-primary); }
+    .diag-step { display: none; }
+    .diag-step.active { display: block; }
+    .option-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 15px; }
+    .opt-btn { background: var(--bg-dark); border: 1px solid var(--border-color); color: #fff; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: 600; text-align: left; }
+    .opt-btn:hover { border-color: var(--accent-primary); background: rgba(56, 189, 248, 0.1); }
+    .symptom-checkboxes { display: flex; flex-direction: column; gap: 10px; margin: 15px 0; }
+    .chk-label { background: var(--bg-dark); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; cursor: pointer; }
+    .step-actions { display: flex; justify-content: space-between; margin-top: 20px; }
+    .btn-next { background: var(--accent-primary); color: #0f172a; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .btn-prev { background: var(--border-color); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+    .res-box { padding: 20px; border-radius: 10px; margin-bottom: 15px; }
+
+    /* Map */
+    #map-container { height: 380px; width: 100%; border-radius: 12px; border: 1px solid var(--border-color); z-index: 1; }
+
+    /* Info Grids */
+    .grid-2col { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .info-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 20px; }
+
+    /* Modal */
+    .modal-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 999; padding: 20px; }
+    .modal-content { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; max-width: 600px; width: 100%; padding: 30px; position: relative; max-height: 90vh; overflow-y: auto; }
+    .modal-close { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col selection:bg-emerald-500 selection:text-white">
+<body>
 
-    <!-- Üst Navigasyon -->
-    <header class="sticky top-0 z-40 glass-panel border-b border-gray-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-gray-950 font-bold text-2xl shadow-lg shadow-emerald-500/20">
-                    <i class="fa-solid fa-spider"></i>
-                </div>
-                <div>
-                    <h1 class="text-lg sm:text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
-                        <span id="nav-title">GLOBAL SPIDER GUIDE</span>
-                        <span id="nav-badge" class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30 uppercase font-mono">Global DB</span>
-                    </h1>
-                    <p id="nav-subtitle" class="text-xs text-gray-400">World Arachnofauna & Biodiversity Portal</p>
-                </div>
-            </div>
-            
-            <div class="flex items-center gap-3">
-                <!-- Dil Değiştirme Butonu (TR / EN) -->
-                <button onclick="toggleLanguage()" class="px-3.5 py-2 rounded-xl bg-gray-900 border border-gray-800 hover:border-emerald-500 text-xs font-bold text-emerald-400 transition flex items-center gap-2 shadow-md">
-                    <i class="fa-solid fa-globe text-sm"></i>
-                    <span id="langIndicator">TR / EN</span>
-                </button>
-
-                <!-- Sekme Butonları -->
-                <div class="hidden md:flex gap-1 bg-gray-900/80 p-1.5 rounded-xl border border-gray-800">
-                    <button onclick="switchTab('species')" id="tab-btn-species" class="px-4 py-2 rounded-lg text-xs font-semibold transition bg-emerald-500 text-gray-950 shadow-md">
-                        <i class="fa-solid fa-database mr-1.5"></i> <span data-i18n="tabSpecies">Species Database</span>
-                    </button>
-                    <button onclick="switchTab('medical')" id="tab-btn-medical" class="px-4 py-2 rounded-lg text-xs font-semibold transition text-gray-400 hover:text-white">
-                        <i class="fa-solid fa-kit-medical mr-1.5"></i> <span data-i18n="tabMedical">Bites & First Aid</span>
-                    </button>
-                    <button onclick="switchTab('eco')" id="tab-btn-eco" class="px-4 py-2 rounded-lg text-xs font-semibold transition text-gray-400 hover:text-white">
-                        <i class="fa-solid fa-leaf mr-1.5"></i> <span data-i18n="tabEco">Ecological Role</span>
-                    </button>
-                </div>
-            </div>
+  <header>
+    <div class="container">
+      <div class="header-top">
+        <div class="logo-box">
+          <h1><i class="fa-solid fa-spider"></i> <span id="logoTitle">World Spider Guide</span></h1>
         </div>
-    </header>
+        <button class="lang-btn" onclick="toggleLanguage()"><i class="fa-solid fa-globe"></i> <span id="langBtnText">TR / EN</span></button>
+      </div>
+      <p id="heroSubtitle" style="color: var(--text-muted);">Global Spider Encyclopedia, Species Identification & Diagnostic Portal</p>
+    </div>
+  </header>
 
-    <!-- Ana İçerik -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+  <div class="container">
+    
+    <!-- Diagnostic Step Wizard Module -->
+    <div id="diagnostic-module" class="diag-card">
+      <div class="diag-header">
+        <h3><i class="fa-solid fa-user-nurse" style="color: var(--accent-primary);"></i> <span id="diagTitle">Interactive Bite & Symptom Diagnostic Guide</span></h3>
+        <div class="step-indicator">
+          <span class="step-dot active" id="dot1">1</span>
+          <span class="step-dot" id="dot2">2</span>
+          <span class="step-dot" id="dot3">3</span>
+          <span class="step-dot" id="dotResult"><i class="fa-solid fa-check"></i></span>
+        </div>
+      </div>
 
-        <!-- İstatistik Barı -->
-        <section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="glass-panel p-5 rounded-2xl flex items-center justify-between">
-                <div>
-                    <span class="text-xs font-medium text-gray-400 uppercase tracking-wider block" data-i18n="statTotalTitle">Total Species</span>
-                    <span class="text-2xl font-extrabold text-white mt-1 block" id="stat-total">0</span>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-lg border border-blue-500/20"><i class="fa-solid fa-dna"></i></div>
-            </div>
-            <div class="glass-panel p-5 rounded-2xl flex items-center justify-between">
-                <div>
-                    <span class="text-xs font-medium text-gray-400 uppercase tracking-wider block" data-i18n="statSafeTitle">Harmless</span>
-                    <span class="text-2xl font-extrabold text-emerald-400 mt-1 block" id="stat-safe">0</span>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg border border-emerald-500/20"><i class="fa-solid fa-shield-halved"></i></div>
-            </div>
-            <div class="glass-panel p-5 rounded-2xl flex items-center justify-between">
-                <div>
-                    <span class="text-xs font-medium text-gray-400 uppercase tracking-wider block" data-i18n="statDangerTitle">Medically Significant</span>
-                    <span class="text-2xl font-extrabold text-rose-400 mt-1 block" id="stat-danger">0</span>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-lg border border-rose-500/20"><i class="fa-solid fa-triangle-exclamation"></i></div>
-            </div>
-            <div class="glass-panel p-5 rounded-2xl flex items-center justify-between">
-                <div>
-                    <span class="text-xs font-medium text-gray-400 uppercase tracking-wider block" data-i18n="statScopeTitle">Coverage</span>
-                    <span class="text-2xl font-extrabold text-amber-400 mt-1 block" data-i18n="statScopeVal">Global & Local</span>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-lg border border-amber-500/20"><i class="fa-solid fa-earth-americas"></i></div>
-            </div>
-        </section>
-
-        <!-- SEKMELER: 1. ÖRÜMCEK VERİTABANI -->
-        <div id="tab-content-species" class="space-y-6">
-            
-            <!-- Arama ve Süzgeç Modülü -->
-            <section class="glass-panel p-6 rounded-2xl space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="relative">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-gray-500 text-sm"></i>
-                        <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Search spider name or family..." 
-                               class="w-full pl-10 pr-4 py-2.5 bg-gray-950 border border-gray-800 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500">
-                    </div>
-                    <div>
-                        <select id="regionFilter" onchange="applyFilters()" class="w-full px-3.5 py-2.5 bg-gray-950 border border-gray-800 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-emerald-500">
-                            <option value="all" data-i18n="optAllRegions">All Regions (Global & Turkey)</option>
-                            <option value="Global">Global / Worldwide</option>
-                            <option value="Turkey">Turkey / Anatolia</option>
-                        </select>
-                    </div>
-                    <div>
-                        <select id="toxicityFilter" onchange="applyFilters()" class="w-full px-3.5 py-2.5 bg-gray-950 border border-gray-800 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-emerald-500">
-                            <option value="all" data-i18n="optAllTox">All Toxicity Levels</option>
-                            <option value="safe" data-i18n="optSafe">✅ Harmless / Minor Effect</option>
-                            <option value="mild" data-i18n="optMild">⚠️ Mild Local Effect</option>
-                            <option value="danger" data-i18n="optDanger">🚨 Medically Significant</option>
-                        </select>
-                    </div>
-                    <div>
-                        <select id="huntingFilter" onchange="applyFilters()" class="w-full px-3.5 py-2.5 bg-gray-950 border border-gray-800 rounded-xl text-sm text-gray-300 focus:outline-none focus:border-emerald-500">
-                            <option value="all" data-i18n="optAllHunt">All Hunting Strategies</option>
-                            <option value="Orb" data-i18n="optOrb">Orb Weaver</option>
-                            <option value="Ambusher" data-i18n="optAmbusher">Ambusher / Flower Spider</option>
-                            <option value="Jumper" data-i18n="optJumper">Jumping Spider</option>
-                            <option value="Wanderer" data-i18n="optWanderer">Wandering / Ground Hunter</option>
-                        </select>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Tür Kartları Izgarası -->
-            <main id="speciesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- JS dinamik dolduracak -->
-            </main>
+      <div class="diag-body">
+        <div class="diag-step active" id="step1">
+          <h4 id="st1Title">Step 1: Select Location</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;" id="st1Sub">Where did the bite or encounter occur?</p>
+          <div class="option-grid">
+            <button class="opt-btn" onclick="selectLocation('North America')"><i class="fa-solid fa-earth-americas"></i> North America</button>
+            <button class="opt-btn" onclick="selectLocation('South America')"><i class="fa-solid fa-earth-americas"></i> South America</button>
+            <button class="opt-btn" onclick="selectLocation('Australia')"><i class="fa-solid fa-earth-oceania"></i> Australia</button>
+            <button class="opt-btn" onclick="selectLocation('Europe / Asia')"><i class="fa-solid fa-earth-europe"></i> Europe / Asia / Africa</button>
+          </div>
         </div>
 
-        <!-- SEKMELER: 2. İLK YARDIM -->
-        <div id="tab-content-medical" class="hidden space-y-6">
-            <div class="glass-panel p-8 rounded-2xl border border-gray-800 space-y-6">
-                <div class="border-b border-gray-800 pb-4">
-                    <h2 class="text-2xl font-bold text-rose-400 flex items-center gap-3">
-                        <i class="fa-solid fa-notes-medical"></i> <span data-i18n="medTitle">Spider Bites and First Aid Protocol</span>
-                    </h2>
-                    <p class="text-sm text-gray-400 mt-1" data-i18n="medSub">Over 98% of spider species worldwide are entirely harmless to humans.</p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 space-y-3">
-                        <h3 class="text-lg font-bold text-amber-400 flex items-center gap-2">
-                            <i class="fa-solid fa-triangle-exclamation"></i> <span data-i18n="medBox1Title">Medically Significant Groups</span>
-                        </h3>
-                        <p class="text-xs text-gray-300 leading-relaxed" data-i18n="medBox1Text">
-                            Only a few genera globally (such as Black Widows, Recluse spiders, and Wandering spiders) possess venom capable of causing systemic reactions.
-                        </p>
-                    </div>
-                    <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 space-y-3">
-                        <h3 class="text-lg font-bold text-emerald-400 flex items-center gap-2">
-                            <i class="fa-solid fa-user-nurse"></i> <span data-i18n="medBox2Title">First Aid Steps</span>
-                        </h3>
-                        <ol class="text-xs text-gray-300 space-y-2 list-decimal list-inside" data-i18n="medBox2List">
-                            <li>Stay calm and wash the bite area with soap and cold water.</li>
-                            <li>Apply a cold compress to reduce swelling and pain.</li>
-                            <li>Capture or photograph the spider safely if possible for medical ID.</li>
-                            <li>Seek immediate medical attention if severe symptoms occur.</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
+        <div class="diag-step" id="step2">
+          <h4 id="st2Title">Step 2: Primary Physical Symptoms</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;" id="st2Sub">Select all symptoms currently observed:</p>
+          <div class="symptom-checkboxes">
+            <label class="chk-label"><input type="checkbox" value="necrotic"> Blistering / Skin Necrosis / Dark Center</label>
+            <label class="chk-label"><input type="checkbox" value="cramps"> Severe Muscle Cramps / Abdominal Pain</label>
+            <label class="chk-label"><input type="checkbox" value="sweating"> Profuse Sweating / High Pulse</label>
+            <label class="chk-label"><input type="checkbox" value="mild"> Mild Swelling / Local Redness (Sting-like)</label>
+          </div>
+          <div class="step-actions">
+            <button class="btn-prev" onclick="goToStep(1)">Back</button>
+            <button class="btn-next" onclick="processSymptoms()">Next Step <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
         </div>
 
-        <!-- SEKMELER: 3. EKOLOJİ -->
-        <div id="tab-content-eco" class="hidden space-y-6">
-            <div class="glass-panel p-8 rounded-2xl border border-gray-800 space-y-6">
-                <div class="border-b border-gray-800 pb-4">
-                    <h2 class="text-2xl font-bold text-emerald-400 flex items-center gap-3">
-                        <i class="fa-solid fa-bug-slash"></i> <span data-i18n="ecoTitle">Ecological Importance of Spiders</span>
-                    </h2>
-                    <p class="text-sm text-gray-400 mt-1" data-i18n="ecoSub">Spiders are nature's most efficient biological pest control agents.</p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-gray-300">
-                    <div class="bg-gray-950 p-5 rounded-xl border border-gray-800">
-                        <i class="fa-solid fa-wheat-awn text-emerald-400 text-2xl mb-3 block"></i>
-                        <h4 class="font-bold text-white text-sm mb-2" data-i18n="ecoBox1Title">Agricultural Control</h4>
-                        <p class="leading-relaxed" data-i18n="ecoBox1Text">They consume millions of agricultural pests annually, reducing the need for harmful chemical pesticides.</p>
-                    </div>
-                    <div class="bg-gray-950 p-5 rounded-xl border border-gray-800">
-                        <i class="fa-solid fa-house-chimney-medical text-blue-400 text-2xl mb-3 block"></i>
-                        <h4 class="font-bold text-white text-sm mb-2" data-i18n="ecoBox2Title">Vector Regulation</h4>
-                        <p class="leading-relaxed" data-i18n="ecoBox2Text">By hunting mosquitoes and flies around human habitats, they help control disease vectors.</p>
-                    </div>
-                    <div class="bg-gray-950 p-5 rounded-xl border border-gray-800">
-                        <i class="fa-solid fa-vial text-purple-400 text-2xl mb-3 block"></i>
-                        <h4 class="font-bold text-white text-sm mb-2" data-i18n="ecoBox3Title">Biomedical Value</h4>
-                        <p class="leading-relaxed" data-i18n="ecoBox3Text">Spider silk and venoms are widely studied for advanced material engineering and pharmacological pain treatments.</p>
-                    </div>
-                </div>
-            </div>
+        <div class="diag-step" id="step3">
+          <h4 id="st3Title">Step 3: Visual Markings</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;" id="st3Sub">Did you notice any markings on the spider?</p>
+          <div class="option-grid">
+            <button class="opt-btn" onclick="selectVisual('violin')">Violin-shaped mark on back</button>
+            <button class="opt-btn" onclick="selectVisual('hourglass')">Red/Orange hourglass on abdomen</button>
+            <button class="opt-btn" onclick="selectVisual('large-hairy')">Very large, hairy body</button>
+            <button class="opt-btn" onclick="selectVisual('unknown')">Unseen / Unknown</button>
+          </div>
+          <div class="step-actions">
+            <button class="btn-prev" onclick="goToStep(2)">Back</button>
+          </div>
         </div>
 
+        <div class="diag-step" id="stepResult">
+          <div id="resultContent"></div>
+          <p style="font-size: 0.8rem; color: var(--text-muted); background: var(--bg-dark); padding: 12px; border-radius: 6px; margin-top: 15px;">
+            <i class="fa-solid fa-triangle-exclamation" style="color: var(--risk-warn);"></i> <strong>Medical Disclaimer:</strong> This guide is for educational identification only. Seek professional emergency medical care for severe symptoms.
+          </p>
+          <button class="btn-prev" style="margin-top: 15px;" onclick="resetDiagnostic()"><i class="fa-solid fa-rotate-left"></i> Start New Diagnostic</button>
+        </div>
+      </div>
     </div>
 
-    <!-- Detay Modalı -->
-    <div id="detailModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
-        <div class="bg-gray-900 border border-gray-700 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 relative shadow-2xl">
-            <button onclick="closeModal()" class="absolute top-5 right-5 text-gray-400 hover:text-white transition w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center border border-gray-700">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-            <div id="modalContent"></div>
-        </div>
+    <!-- Search & Filter Controls -->
+    <h2 class="section-title"><i class="fa-solid fa-filter"></i> <span id="secCatalog">Global Species Directory</span></h2>
+    <div class="controls-panel">
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="searchInput" placeholder="Search by name, scientific name...">
+      </div>
+      <div class="filter-group">
+        <select id="venomFilter" class="filter-select">
+          <option value="all">All Venom Ratings</option>
+          <option value="safe">🟢 Low Risk / Non-dangerous</option>
+          <option value="warn">🟡 Mild Venom</option>
+          <option value="danger">🔴 Medically Significant</option>
+        </select>
+        <select id="continentFilter" class="filter-select">
+          <option value="all">All Continents</option>
+          <option value="North America">North America</option>
+          <option value="South America">South America</option>
+          <option value="Australia">Australia</option>
+        </select>
+      </div>
     </div>
 
-    <!-- JavaScript & Veritabanı (Çoklu Dil) -->
-    <script>
-        let currentLang = 'en'; // Varsayılan dil İngilizce (Global vizyon için)
+    <!-- Spider Grid -->
+    <div class="spider-grid" id="spiderGrid"></div>
 
-        const dict = {
-            en: {
-                pageTitle: "Global Spider Guide & Arachnology Portal",
-                navTitle: "GLOBAL SPIDER GUIDE",
-                navBadge: "Global DB",
-                navSub: "World Arachnofauna & Biodiversity Portal",
-                langText: "EN",
-                tabSpecies: "Species Database",
-                tabMedical: "Bites & First Aid",
-                tabEco: "Ecological Role",
-                statTotalTitle: "Total Species",
-                statSafeTitle: "Harmless",
-                statDangerTitle: "Medically Significant",
-                statScopeTitle: "Coverage",
-                statScopeVal: "Global & Local",
-                searchPlaceholder: "Search spider name or family...",
-                optAllRegions: "All Regions (Global & Turkey)",
-                optAllTox: "All Toxicity Levels",
-                optSafe: "✅ Harmless / Minor Effect",
-                optMild: "⚠️ Mild Local Effect",
-                optDanger: "🚨 Medically Significant",
-                optAllHunt: "All Hunting Strategies",
-                optOrb: "Orb Weaver",
-                optAmbusher: "Ambusher / Flower Spider",
-                optJumper: "Jumping Spider",
-                optWanderer: "Wandering / Ground Hunter",
-                medTitle: "Spider Bites and First Aid Protocol",
-                medSub: "Over 98% of spider species worldwide are entirely harmless to humans.",
-                medBox1Title: "Medically Significant Groups",
-                medBox1Text: "Only a few genera globally possess venom capable of causing systemic reactions.",
-                medBox2Title: "First Aid Steps",
-                medBox2List: [
-                    "Stay calm and wash the bite area with soap and cold water.",
-                    "Apply a cold compress to reduce swelling and pain.",
-                    "Capture or photograph the spider safely if possible.",
-                    "Seek immediate medical attention if severe symptoms occur."
-                ],
-                ecoTitle: "Ecological Importance of Spiders",
-                ecoSub: "Spiders are nature's most efficient biological pest control agents.",
-                ecoBox1Title: "Agricultural Control",
-                ecoBox1Text: "They consume millions of agricultural pests annually, reducing the need for chemical pesticides.",
-                ecoBox2Title: "Vector Regulation",
-                ecoBox2Text: "By hunting mosquitoes and flies around human habitats, they help control disease vectors.",
-                ecoBox3Title: "Biomedical Value",
-                ecoBox3Text: "Spider silk and venoms are studied for advanced material engineering and medical treatments.",
-                detailsBtn: "Microscope & Details",
-                familyLabel: "Family:",
-                regionLabel: "Distribution:",
-                sizeLabel: "Body Size",
-                toxStatusLabel: "Toxicity Status",
-                habitatLabel: "Habitat & Distribution",
-                taxonomyLabel: "Taxonomic Description & Biology",
-                noResult: "No matching spider records found."
-            },
-            tr: {
-                pageTitle: "Global Örümcek Rehberi & Araknoloji Portalı",
-                navTitle: "GLOBAL ÖRÜMCEK REHBERİ",
-                navBadge: "Global DB",
-                navSub: "Dünya Araknofaunası ve Biyo-Çeşitlilik Portalı",
-                langText: "TR",
-                tabSpecies: "Örümcek Tür Veritabanı",
-                tabMedical: "Isırıklar & İlk Yardım",
-                tabEco: "Ekolojik Önem",
-                statTotalTitle: "Kayıtlı Tür Sayısı",
-                statSafeTitle: "Zararsız Türler",
-                statDangerTitle: "Tıbbi Önemli Türler",
-                statScopeTitle: "Kapsam",
-                statScopeVal: "Global & Yerel",
-                searchPlaceholder: "Örümcek adı, Latince veya familya ara...",
-                optAllRegions: "Tüm Bölgeler (Global & Türkiye)",
-                optAllTox: "Tüm Tıbbi Etki Seviyeleri",
-                optSafe: "✅ Tıbbi Önemsiz / Zararsız",
-                optMild: "⚠️ Hafif Lokal Etki",
-                optDanger: "🚨 Tıbbi Önemli (Doktora Başvurulmalı)",
-                optAllHunt: "Tüm Avlanma Metotları",
-                optOrb: "Küre Dairesel Ağ Dokuyucu",
-                optAmbusher: "Pusu / Çiçek Avcısı",
-                optJumper: "Zıplayan Görsel Avcı",
-                optWanderer: "Serbest Koşucu / Kurt Örümceği",
-                medTitle: "Örümcek Isırıkları ve İlk Yardım Protokolü",
-                medSub: "Dünya genelindeki örümcek türlerinin %98'den fazlası insan sağlığı için tamamen zararsızdır.",
-                medBox1Title: "Tıbbi Önemli Tür Grupları",
-                medBox1Text: "Dünya genelinde yalnızca birkaç grup (Karadul, Keman ve Gezgin örümcekler gibi) sistemik etkiye yol açabilecek venom taşır.",
-                medBox2Title: "Isırık Anında Yapılması Gerekenler",
-                medBox2List: [
-                    "Sakin kalın, ısırık bölgesini sabun ve soğuk suyla yıkayın.",
-                    "Şişliği azaltmak için soğuk kompres uygulayın.",
-                    "Mümkünse örümceği güvenli şekilde fotoğraflayın.",
-                    "Şiddetli belirtilerde derhal acil servise başvurun."
-                ],
-                ecoTitle: "Örümceklerin Doğal Ekosistemdeki Kritik Rolü",
-                ecoSub: "Örümcekler doğadaki en etkili biyolojik zararlı kontrol mekanizmasıdır.",
-                ecoBox1Title: "Tarım Dostu Biyolojik Kontrol",
-                ecoBox1Text: "Yılda milyonlarca tarlaya zararlı böceği avlayarak kimyasal tarım ilacı ihtiyacını azaltır.",
-                ecoBox2Title: "Hastalık Taşıyan Vektör Temizliği",
-                ecoBox2Text: "Sivrisinek ve karasinek gibi zararlıları avlayarak çevre hijyenine katkı sağlar.",
-                ecoBox3Title: "Biyotıp ve İpek Teknolojisi",
-                ecoBox3Text: "Örümcek ipeği çelikten sağlamdır; venomları tıp ve ilaç araştırmalarında model alınır.",
-                detailsBtn: "Detaylı Bilgi & İnceleme",
-                familyLabel: "Familya:",
-                regionLabel: "Dağılım:",
-                sizeLabel: "Boyut Bilgisi",
-                toxStatusLabel: "Tıbbi Toksisite Durumu",
-                habitatLabel: "Habitat ve Yaşam Alanı",
-                taxonomyLabel: "Taksonomik Tanım ve Biyo-Ekoloji",
-                noResult: "Aradığınız kriterlere uygun örümcek kaydı bulunamadı."
-            }
-        };
+    <!-- Map Section -->
+    <h2 class="section-title"><i class="fa-solid fa-earth-americas"></i> <span id="secMap">Interactive Habitat Map</span></h2>
+    <div id="map-container"></div>
 
-        // Küresel ve Yerel Örümcek Veritabanı (İki dilli içerik)
-        const spiderDatabase = [
-            {
-                id: "GLB-001",
-                name: { en: "Brazilian Wandering Spider", tr: "Brezilya Gezgin Örümceği" },
-                latinName: "Phoneutria nigriventer",
-                family: "Ctenidae",
-                scope: "Global",
-                regionText: { en: "South America (Brazil, Argentina)", tr: "Güney Amerika (Brezilya, Arjantin)" },
-                toxicityLevel: "danger",
-                toxicityText: { en: "Medically Significant (Neurotoxic)", tr: "Tıbbi Önemli (Nörotoksik)" },
-                huntingType: "Wanderer",
-                img: "https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&w=800&q=80",
-                habitat: { en: "Forest floors, banana plantations, human dwellings.", tr: "Orman tabanı, muz plantasyonları, insan yerleşimleri." },
-                size: "Body: 17-50 mm | Leg span: 130+ mm",
-                desc: {
-                    en: "Known for aggressive posture when threatened and potent neurotoxic venom. Highly active nocturnal hunter that does not build webs.",
-                    tr: "Tehdit anındaki agresif duruşu ve güçlü nörotoksli zehiriyle bilinir. Ağ örmeyen, gece aktif avcı bir türdür."
-                }
-            },
-            {
-                id: "GLB-002",
-                name: { en: "Sydney Funnel-web Spider", tr: "Sydney Huni Ağ Örümceği" },
-                latinName: "Atrax robustus",
-                family: "Atracidae",
-                scope: "Global",
-                regionText: { en: "Eastern Australia (Sydney region)", tr: "Doğu Avustralya (Sydney Bölgesi)" },
-                toxicityLevel: "danger",
-                toxicityText: "Medically Significant",
-                huntingType: "Funnel",
-                img: "https://images.unsplash.com/photo-1568283096533-0dd839c3186a?auto=format&fit=crop&w=800&q=80",
-                habitat: { en: "Moist sheltered habitats, deep burrows, rotting logs.", tr: "Nemli korunaklı habitatlar, derin toprak inleri, çürük kütükler." },
-                size: "Body: 25-35 mm",
-                desc: {
-                    en: "One of the world's most dangerous spiders. Produces robust funnel-shaped webs and possesses powerful delta-atracotoxin.",
-                    tr: "Dünyanın en tehlikeli örümceklerinden biridir. Sağlam huni şeklinde ağlar örer ve güçlü delta-atratoksin taşır."
-                }
-            },
-            {
-                id: "TUR-001",
-                name: { en: "Mediterranean Black Widow", tr: "Akdeniz Karadulu / 13 Benekli" },
-                latinName: "Latrodectus tredecimguttatus",
-                family: "Theridiidae",
-                scope: "Turkey",
-                regionText: { en: "Mediterranean, Aegean & Central Anatolia", tr: "Akdeniz, Ege & İç Anadolu" },
-                toxicityLevel: "danger",
-                toxicityText: { en: "Medically Significant", tr: "Tıbbi Önemli (Nörotoksik)" },
-                huntingType: "Funnel",
-                img: "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&w=800&q=80",
-                habitat: { en: "Dry scrublands, stone walls, agricultural fields.", tr: "Kuru otluklar, taş altları, terk edilmiş tarım alanları." },
-                size: "Female: 10-15 mm",
-                desc: {
-                    en: "Glossy black abdomen with 13 red or orange spots. Venom contains alpha-latrotoxin which can cause intense muscle cramps.",
-                    tr: "Parlak siyah abdomen üzerinde 13 kırmızı/turuncu benek taşır. Alfa-latrotoksin nedeniyle kas kramplarına yol açabilir."
-                }
-            },
-            {
-                id: "TUR-002",
-                name: { en: "Wasp Spider (Tiger Spider)", tr: "Arı Örümceği / Kaplan Örümceği" },
-                latinName: "Argiope bruennichi",
-                family: "Araneidae",
-                scope: "Turkey",
-                regionText: { en: "Widespread across Turkey & Europe", tr: "Türkiye Geneli & Avrupa" },
-                toxicityLevel: "safe",
-                toxicityText: { en: "Harmless / Minor", tr: "Tıbbi Önemsiz / Zararsız" },
-                huntingType: "Orb",
-                img: "https://images.unsplash.com/photo-1582083375836-e6669931b268?auto=format&fit=crop&w=800&q=80",
-                habitat: { en: "Tall grasslands, meadows, damp vegetation.", tr: "Nemli yüksek otluklar, çayır bitki örtüsü." },
-                size: "Female: 15-20 mm",
-                desc: {
-                    en: "Striking yellow and black stripes resembling a wasp. Weaves a zig-zag silk structure called a stabilimentum in its orb web.",
-                    tr: "Sarıarılara benzeyen sarı-siyah şeritli gövdeye sahiptir. Ağının ortasına 'stabilimentum' adı verilen zikzak ipek dokur."
-                }
-            },
-            {
-                id: "TUR-003",
-                name: { en: "European Garden Spider", tr: "Avrupa Bahçe Örümceği" },
-                latinName: "Araneus diadematus",
-                family: "Araneidae",
-                scope: "Global",
-                regionText: { en: "Europe & North America / Turkey", tr: "Avrupa, Kuzey Amerika & Türkiye" },
-                toxicityLevel: "safe",
-                toxicityText: { en: "Harmless", tr: "Zararsız" },
-                huntingType: "Orb",
-                img: "https://images.unsplash.com/photo-1563281577-a7be47e20db9?auto=format&fit=crop&w=800&q=80",
-                habitat: { en: "Gardens, forests, window frames, bushes.", tr: "Bahçeler, orman kenarları, çalı dipleri." },
-                size: "6-20 mm",
-                desc: {
-                    en: "Recognized by the cross-like white spots on its abdomen. Excellent orb-web weaver found commonly in autumn.",
-                    tr: "Abdomeni üzerindeki haç şeklindeki beyaz beneklerle tanınır. Sonbaharda sıkça görülen usta bir ağ örücüsüdür."
-                }
-            },
-            {
-                id: "TUR-004",
-                name: { en: "Red Jumping Spider", tr: "Kırmızı Zıplayan Örümcek" },
-                latinName: "Philaeus chrysops",
-                family: "Salticidae",
-                scope: "Turkey",
-                regionText: { en: "Sunny rock faces across Turkey", tr: "Güneşli Kaya Yüzeyleri (Türkiye)" },
-                toxicityLevel: "safe",
-                toxicityText: { en: "Harmless", tr: "Zararsız" },
-                huntingType: "Jumper",
-                img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80",
-                habitat: { en: "Sunny stone walls, dry rocky slopes.", tr: "Güneş gören taş duvarlar, kayalık yamaçlar." },
-                size: "7-12 mm",
-                desc: {
-                    en: "Males feature vibrant bright red abdomens. Possesses 8 eyes providing exceptional 3D vision to stalk and leap on prey.",
-                    tr: "Erkekleri göz alıcı parlak kırmızı abdomene sahiptir. 8 gözüyle kusursuz 3D görüşe sahiptir ve avının üzerine sıçrar."
-                }
-            }
-        ];
+    <!-- Eye Anatomy & Myth Sections -->
+    <h2 class="section-title"><i class="fa-solid fa-eye"></i> <span id="secEye">Taxonomic Eye Pattern Guide</span></h2>
+    <div class="grid-2col" id="eyeGrid"></div>
 
-        function toggleLanguage() {
-            currentLang = currentLang === 'en' ? 'tr' : 'en';
-            updateTexts();
-            applyFilters();
-        }
+    <h2 class="section-title"><i class="fa-solid fa-shield-halved"></i> <span id="secMyth">Myths vs. Facts</span></h2>
+    <div class="grid-2col" id="mythGrid"></div>
 
-        function updateTexts() {
-            const t = dict[currentLang];
-            document.getElementById('page-title').innerText = t.pageTitle;
-            document.getElementById('nav-title').innerText = t.navTitle;
-            document.getElementById('nav-badge').innerText = t.navBadge;
-            document.getElementById('nav-subtitle').innerText = t.navSub;
-            document.getElementById('langIndicator').innerText = t.langText;
-            document.getElementById('searchInput').placeholder = t.searchPlaceholder;
+  </div>
 
-            // Tüm data-i18n etiketlerini güncelle
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (t[key]) {
-                    if (Array.isArray(t[key])) {
-                        el.innerHTML = t[key].map(item => `<li>${item}</li>`).join('');
-                    } else {
-                        el.innerText = t[key];
-                    }
-                }
-            });
-        }
+  <!-- Detail Modal -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal()">&times;</span>
+      <h2 id="modalTitle"></h2>
+      <p id="modalLatin" style="font-style: italic; color: var(--text-muted); margin-bottom: 15px;"></p>
+      <div id="modalBody"></div>
+    </div>
+  </div>
 
-        function switchTab(tabName) {
-            ['species', 'medical', 'eco'].forEach(t => {
-                document.getElementById(`tab-content-${t}`).classList.add('hidden');
-                const btn = document.getElementById(`tab-btn-${t}`);
-                btn.className = "px-4 py-2 rounded-lg text-xs font-semibold transition text-gray-400 hover:text-white";
-            });
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-            document.getElementById(`tab-content-${tabName}`).classList.remove('hidden');
-            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
-            activeBtn.className = "px-4 py-2 rounded-lg text-xs font-semibold transition bg-emerald-500 text-gray-950 shadow-md";
-        }
+  <script>
+    let currentLang = 'en';
 
-        function renderGrid(data) {
-            const grid = document.getElementById('speciesGrid');
-            grid.innerHTML = '';
-            const t = dict[currentLang];
+    const translations = {
+      en: {
+        logoTitle: "World Spider Guide",
+        heroSubtitle: "Global Spider Encyclopedia, Species Identification & Diagnostic Portal",
+        searchPlaceholder: "Search by species or scientific name...",
+        secCatalog: "Global Species Directory",
+        secMap: "Interactive Habitat Map",
+        secEye: "Taxonomic Eye Pattern Guide",
+        secMyth: "Myths vs. Facts",
+        btnDetail: "View Profile & First Aid",
+        diagTitle: "Interactive Bite & Symptom Diagnostic Guide"
+      },
+      tr: {
+        logoTitle: "Dünya Örümcek Rehberi",
+        heroSubtitle: "Küresel Örümcek Ansiklopedisi, Tür Tanımlama ve Teşhis Portalı",
+        searchPlaceholder: "Tür adı veya bilimsel ad ara...",
+        secCatalog: "Küresel Tür Kataloğu",
+        secMap: "Canlı Yaşam Alanı Haritası",
+        secEye: "Göz Dizilimi ve Anatomi Rehberi",
+        secMyth: "Efsane mi Gerçek mi?",
+        btnDetail: "Profili ve İlk Yardımı İncele",
+        diagTitle: "Etkileşimli Isırık & Semptom Teşhis Rehberi"
+      }
+    };
 
-            if (data.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-16 text-center text-gray-500 font-mono">${t.noResult}</div>`;
-                return;
-            }
+    const spiderData = [
+      {
+        id: 1, scientificName: "Phoneutria nigriventer",
+        name: { en: "Brazilian Wandering Spider", tr: "Brezilya Gezgin Örümceği" },
+        continent: "South America", venomLevel: "danger",
+        venomText: { en: "🔴 Medically Significant", tr: "🔴 Tıbbi Müdahale Gerektirir" },
+        size: "13 - 15 cm", habitat: "Rainforests, Banana Plantations",
+        desc: { en: "Highly venomous neurotoxic species found in South America.", tr: "Güney Amerika'da bulunan son derece tehlikeli nörotoksik tür." },
+        lat: -14.2350, lng: -51.9253
+      },
+      {
+        id: 2, scientificName: "Atrax robustus",
+        name: { en: "Sydney Funnel-Web Spider", tr: "Sydney Huni Ağ Örümceği" },
+        continent: "Australia", venomLevel: "danger",
+        venomText: { en: "🔴 Medically Significant", tr: "🔴 Tıbbi Müdahale Gerektirir" },
+        size: "1 - 5 cm", habitat: "Moist soil, burrows",
+        desc: { en: "Aggressive species with dangerous robust fangs.", tr: "Büyük ve güçlü dişlere sahip agresif Avustralya türü." },
+        lat: -33.8688, lng: 151.2093
+      },
+      {
+        id: 3, scientificName: "Theraphosa blondi",
+        name: { en: "Goliath Birdeater", tr: "Goliath Kuş Yiyen Tarantula" },
+        continent: "South America", venomLevel: "warn",
+        venomText: { en: "🟡 Mild Venom / Hair Risk", tr: "🟡 Hafif Zehir / Tüyler Kaşındırıcı" },
+        size: "Up to 30 cm", habitat: "Amazon Rainforest",
+        desc: { en: "World's largest spider by mass. Hairs cause irritation.", tr: "Kütlece dünyanın en büyük tarantulası. Tüyleri ciltte kaşıntı yapar." },
+        lat: -3.4653, lng: -62.2159
+      },
+      {
+        id: 4, scientificName: "Loxosceles reclusa",
+        name: { en: "Brown Recluse Spider", tr: "Kahverengi Recluse / Keman Örümceği" },
+        continent: "North America", venomLevel: "danger",
+        venomText: { en: "🔴 Medically Significant (Necrotic)", tr: "🔴 Nekrotik Zehir / Tehlikeli" },
+        size: "0.6 - 2 cm", habitat: "Attics, woodpiles",
+        desc: { en: "Cytotoxic venom causing localized skin lesions.", tr: "Doku hasarına ve yaralara yol açan sitotoksik zehre sahiptir." },
+        lat: 37.0902, lng: -95.7129
+      }
+    ];
 
-            data.forEach(item => {
-                let badgeClass = "badge-safe";
-                if(item.toxicityLevel === 'mild') badgeClass = "badge-mild";
-                if(item.toxicityLevel === 'danger') badgeClass = "badge-danger";
+    const eyeData = [
+      { family: "Salticidae (Jumping Spiders)", desc: { en: "2 large forward eyes for high-definition 3D vision.", tr: "Derinlik algısı yüksek 2 büyük ön göz." } },
+      { family: "Lycosidae (Wolf Spiders)", desc: { en: "Arranged in 3 rows for low-light nocturnal hunting.", tr: "Gece avlanmaya uygun 3 sıra halinde 8 göz." } }
+    ];
 
-                const spiderName = item.name[currentLang] || item.name.en;
-                const regText = typeof item.regionText === 'object' ? (item.regionText[currentLang] || item.regionText.en) : item.regionText;
-                const toxText = typeof item.toxicityText === 'object' ? (item.toxicityText[currentLang] || item.toxicityText.en) : item.toxicityText;
+    const mythData = [
+      { myth: { en: "Spiders bite people in their sleep.", tr: "Örümcekler insanları uykuda ısırır." }, fact: { en: "Fact: Spiders actively avoid human breath and vibrations.", tr: "Gerçek: Örümcekler insan nefesinden ve titreşiminden kaçınır." } },
+      { myth: { en: "All spiders have lethal venom.", tr: "Tüm örümceklerin zehri öldürücüdür." }, fact: { en: "Fact: Less than 0.5% of species pose medical danger.", tr: "Gerçek: Türlerin %0.5'inden azı insan için tehlikelidir." } }
+    ];
 
-                const card = document.createElement('div');
-                card.className = "glass-panel rounded-2xl overflow-hidden flex flex-col justify-between card-hover border border-gray-800";
+    const map = L.map('map-container').setView([20, 0], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+    let markers = [];
 
-                card.innerHTML = `
-                    <div>
-                        <div class="h-48 w-full overflow-hidden relative">
-                            <img src="${item.img}" alt="${spiderName}" class="w-full h-full object-cover transition duration-500 hover:scale-110" loading="lazy">
-                            <span class="absolute top-3 right-3 text-[11px] px-2.5 py-1 rounded-full font-semibold ${badgeClass}">
-                                ${toxText}
-                            </span>
-                            <span class="absolute bottom-3 left-3 text-[10px] bg-black/60 backdrop-blur-md text-gray-300 px-2 py-0.5 rounded font-mono">
-                                ${item.id}
-                            </span>
-                        </div>
-                        <div class="p-5">
-                            <h3 class="text-lg font-bold text-white mb-0.5">${spiderName}</h3>
-                            <p class="text-xs italic text-emerald-400 font-mono mb-4">${item.latinName}</p>
-                            
-                            <div class="space-y-2 text-xs text-gray-300">
-                                <div class="flex justify-between border-b border-gray-800 pb-1.5">
-                                    <span class="text-gray-500">${t.familyLabel}</span>
-                                    <span class="font-medium text-gray-200">${item.family}</span>
-                                </div>
-                                <div class="flex justify-between border-b border-gray-800 pb-1.5">
-                                    <span class="text-gray-500">${t.regionLabel}</span>
-                                    <span class="font-medium text-gray-200 text-right">${regText}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-5 pt-0">
-                        <button onclick="openModal('${item.id}')" class="w-full py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-200 text-xs font-semibold rounded-xl border border-gray-700 transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-microscope text-gray-400"></i> ${t.detailsBtn}
-                        </button>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
+    const diagState = { location: '', symptoms: [], visualMarking: '' };
 
-        function updateStats(data) {
-            document.getElementById('stat-total').innerText = data.length;
-            document.getElementById('stat-safe').innerText = data.filter(d => d.toxicityLevel === 'safe').length;
-            document.getElementById('stat-danger').innerText = data.filter(d => d.toxicityLevel === 'danger').length;
-        }
+    function renderApp() {
+      const t = translations[currentLang];
+      document.getElementById('logoTitle').innerText = t.logoTitle;
+      document.getElementById('heroSubtitle').innerText = t.heroSubtitle;
+      document.getElementById('searchInput').placeholder = t.searchPlaceholder;
+      document.getElementById('secCatalog').innerText = t.secCatalog;
+      document.getElementById('secMap').innerText = t.secMap;
+      document.getElementById('secEye').innerText = t.secEye;
+      document.getElementById('secMyth').innerText = t.secMyth;
+      document.getElementById('diagTitle').innerText = t.diagTitle;
 
-        function applyFilters() {
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            const region = document.getElementById('regionFilter').value;
-            const tox = document.getElementById('toxicityFilter').value;
-            const hunt = document.getElementById('huntingFilter').value;
+      filterAndRender();
+      renderEyeGuide();
+      renderMyths();
+    }
 
-            const filtered = spiderDatabase.filter(item => {
-                const spiderName = (item.name[currentLang] || item.name.en).toLowerCase();
-                const matchSearch = spiderName.includes(search) || 
-                                    item.latinName.toLowerCase().includes(search) || 
-                                    item.family.toLowerCase().includes(search);
-                const matchRegion = region === 'all' || item.scope === region;
-                const matchTox = tox === 'all' || item.toxicityLevel === tox;
-                const matchHunt = hunt === 'all' || item.huntingType === hunt;
+    function renderSpiders(data) {
+      const grid = document.getElementById('spiderGrid');
+      grid.innerHTML = '';
+      data.forEach(s => {
+        const t = translations[currentLang];
+        grid.innerHTML += `
+          <div class="spider-card">
+            <div class="card-img-holder">
+              <i class="fa-solid fa-spider"></i>
+              <span class="badge-venom venom-${s.venomLevel}">${s.venomText[currentLang]}</span>
+            </div>
+            <div class="card-body">
+              <div class="spider-title">${s.name[currentLang]}</div>
+              <div class="spider-latin">${s.scientificName}</div>
+              <div class="spider-meta">
+                <span><i class="fa-solid fa-globe"></i> ${s.continent}</span>
+                <span><i class="fa-solid fa-ruler"></i> ${s.size}</span>
+              </div>
+              <button class="btn-detail" onclick="openModal(${s.id})">${t.btnDetail}</button>
+            </div>
+          </div>
+        `;
+      });
+    }
 
-                return matchSearch && matchRegion && matchTox && matchHunt;
-            });
+    function updateMap(data) {
+      markers.forEach(m => map.removeLayer(m));
+      markers = [];
+      data.forEach(s => {
+        const m = L.marker([s.lat, s.lng]).addTo(map);
+        m.bindPopup(`<b>${s.name[currentLang]}</b><br><i>${s.scientificName}</i>`);
+        markers.push(m);
+      });
+    }
 
-            renderGrid(filtered);
-            updateStats(filtered);
-        }
+    function filterAndRender() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const v = document.getElementById('venomFilter').value;
+      const c = document.getElementById('continentFilter').value;
 
-        function openModal(id) {
-            const item = spiderDatabase.find(d => d.id === id);
-            if(!item) return;
-            const t = dict[currentLang];
+      const filtered = spiderData.filter(s => {
+        const matchQ = s.name[currentLang].toLowerCase().includes(q) || s.scientificName.toLowerCase().includes(q);
+        const matchV = v === 'all' || s.venomLevel === v;
+        const matchC = c === 'all' || s.continent === c;
+        return matchQ && matchV && matchC;
+      });
 
-            const spiderName = item.name[currentLang] || item.name.en;
-            const habitatText = typeof item.habitat === 'object' ? (item.habitat[currentLang] || item.habitat.en) : item.habitat;
-            const descText = typeof item.desc === 'object' ? (item.desc[currentLang] || item.desc.en) : item.desc;
-            const toxText = typeof item.toxicityText === 'object' ? (item.toxicityText[currentLang] || item.toxicityText.en) : item.toxicityText;
+      renderSpiders(filtered);
+      updateMap(filtered);
+    }
 
-            const content = document.getElementById('modalContent');
-            content.innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div class="h-64 rounded-xl overflow-hidden border border-gray-800">
-                        <img src="${item.img}" alt="${spiderName}" class="w-full h-full object-cover">
-                    </div>
-                    <div class="flex flex-col justify-between">
-                        <div>
-                            <span class="text-xs font-mono text-emerald-400 block mb-1">${item.id} • ${item.family}</span>
-                            <h2 class="text-2xl font-bold text-white mb-1">${spiderName}</h2>
-                            <p class="text-sm italic text-gray-400 font-mono mb-4">${item.latinName}</p>
-                        </div>
-                        <div class="space-y-2 text-xs">
-                            <div class="bg-gray-950 p-2.5 rounded-lg border border-gray-800">
-                                <span class="text-gray-500 block">${t.sizeLabel}</span>
-                                <span class="text-gray-200 font-semibold">${item.size}</span>
-                            </div>
-                            <div class="bg-gray-950 p-2.5 rounded-lg border border-gray-800">
-                                <span class="text-gray-500 block">${t.toxStatusLabel}</span>
-                                <span class="text-gray-200 font-semibold">${toxText}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    // Diagnostic Wizard Logic
+    function selectLocation(region) { diagState.location = region; goToStep(2); }
+    function processSymptoms() {
+      const checked = document.querySelectorAll('.symptom-checkboxes input:checked');
+      diagState.symptoms = Array.from(checked).map(c => c.value);
+      goToStep(3);
+    }
+    function selectVisual(marking) {
+      diagState.visualMarking = marking;
+      evaluateDiagnosis();
+      goToStep('Result');
+    }
+    function goToStep(stepNum) {
+      document.querySelectorAll('.diag-step').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.step-dot').forEach(d => d.classList.remove('active'));
+      const target = document.getElementById('step' + stepNum);
+      if(target) target.classList.add('active');
+      if (stepNum === 'Result') {
+        document.getElementById('dotResult').classList.add('active');
+      } else {
+        for(let i = 1; i <= stepNum; i++) document.getElementById('dot' + i).classList.add('active');
+      }
+    }
+    function evaluateDiagnosis() {
+      const resContainer = document.getElementById('resultContent');
+      let title = "🟢 Low Risk Reaction";
+      let riskClass = "venom-safe";
+      let species = "Garden Spider / Non-dangerous species";
+      let steps = ["Wash with soap and water.", "Apply cold compress to swelling."];
 
-                <div class="space-y-4 text-xs text-gray-300">
-                    <div>
-                        <h4 class="font-semibold text-white mb-1 text-sm">${t.habitatLabel}</h4>
-                        <p class="bg-gray-950 p-3 rounded-xl border border-gray-800 leading-relaxed">${habitatText}</p>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-emerald-400 mb-1 text-sm">${t.taxonomyLabel}</h4>
-                        <p class="bg-gray-950 p-3.5 rounded-xl border border-gray-800 text-gray-300 leading-relaxed">${descText}</p>
-                    </div>
-                </div>
-            `;
+      if (diagState.symptoms.includes('necrotic') || diagState.visualMarking === 'violin') {
+        riskClass = "venom-danger";
+        title = "🔴 High Risk: Necrotic / Recluse Suspected";
+        species = "Loxosceles reclusa (Brown Recluse)";
+        steps = ["Apply cold pack wrapped in cloth.", "Elevate affected limb.", "Seek emergency medical evaluation."];
+      } else if (diagState.symptoms.includes('cramps') || diagState.visualMarking === 'hourglass') {
+        riskClass = "venom-danger";
+        title = "🔴 High Risk: Neurotoxic Bite Suspected";
+        species = "Latrodectus spp. (Black Widow)";
+        steps = ["Keep patient calm.", "Proceed to emergency room immediately for antivenom."];
+      }
 
-            document.getElementById('detailModal').classList.remove('hidden');
-            document.getElementById('detailModal').classList.add('flex');
-        }
+      resContainer.innerHTML = `
+        <div class="res-box" style="background: rgba(15,23,42,0.6); border: 1px solid var(--border-color);">
+          <h3 class="${riskClass}">${title}</h3>
+          <p style="margin-top: 6px;"><strong>Lead Identification:</strong> ${species}</p>
+        </div>
+        <h4 style="margin-top: 15px;">First Aid Protocol:</h4>
+        <ul style="padding-left: 20px; font-size: 0.9rem; margin-top: 5px;">
+          ${steps.map(st => `<li>${st}</li>`).join('')}
+        </ul>
+      `;
+    }
+    function resetDiagnostic() {
+      diagState.location = ''; diagState.symptoms = []; diagState.visualMarking = '';
+      document.querySelectorAll('.symptom-checkboxes input').forEach(c => c.checked = false);
+      goToStep(1);
+    }
 
-        function closeModal() {
-            document.getElementById('detailModal').classList.add('hidden');
-            document.getElementById('detailModal').classList.remove('flex');
-        }
+    function renderEyeGuide() {
+      const grid = document.getElementById('eyeGrid');
+      grid.innerHTML = '';
+      eyeData.forEach(item => {
+        grid.innerHTML += `<div class="info-card"><h4>${item.family}</h4><p style="color:var(--text-muted); font-size:0.85rem;">${item.desc[currentLang]}</p></div>`;
+      });
+    }
 
-        // İlk açılışta çalıştır
-        updateTexts();
-        applyFilters();
-    </script>
+    function renderMyths() {
+      const grid = document.getElementById('mythGrid');
+      grid.innerHTML = '';
+      mythData.forEach(item => {
+        grid.innerHTML += `
+          <div class="info-card">
+            <h4 style="color:var(--risk-danger);"><i class="fa-solid fa-xmark"></i> ${item.myth[currentLang]}</h4>
+            <p style="color:var(--risk-safe); font-size:0.9rem; margin-top:6px;"><i class="fa-solid fa-check"></i> ${item.fact[currentLang]}</p>
+          </div>
+        `;
+      });
+    }
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'tr' : 'en';
+      renderApp();
+    }
+
+    function openModal(id) {
+      const s = spiderData.find(item => item.id === id);
+      if(!s) return;
+      document.getElementById('modalTitle').innerText = s.name[currentLang];
+      document.getElementById('modalLatin').innerText = s.scientificName;
+      document.getElementById('modalBody').innerHTML = `
+        <p><strong>Venom Risk:</strong> ${s.venomText[currentLang]}</p>
+        <p><strong>Habitat:</strong> ${s.habitat}</p>
+        <p><strong>Size:</strong> ${s.size}</p>
+        <hr style="border-color: var(--border-color); margin: 12px 0;">
+        <p>${s.desc[currentLang]}</p>
+      `;
+      document.getElementById('detailModal').style.display = 'flex';
+    }
+    function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
+
+    document.getElementById('searchInput').addEventListener('input', filterAndRender);
+    document.getElementById('venomFilter').addEventListener('change', filterAndRender);
+    document.getElementById('continentFilter').addEventListener('change', filterAndRender);
+
+    renderApp();
+  </script>
 </body>
 </html>
