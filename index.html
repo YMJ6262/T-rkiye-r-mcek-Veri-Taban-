@@ -1,143 +1,153 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="seoTitle">World Spider Guide - Global Species Database & Diagnostic Portal</title>
-  <meta name="description" id="seoDesc" content="Explore global spider species, habitat maps, venom ratings, and emergency diagnostic tools.">
-
-  <!-- External Resources -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <title>World Spider Guide | Türkiye Örümcek Veri Tabanı</title>
   
-  <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #38bdf8;
+      --danger: #ef4444;
+      --safe: #22c55e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg-dark); color: var(--text-main); line-height: 1.6; }
+    
+    header { background: #020617; padding: 2rem 1rem; text-align: center; border-bottom: 1px solid #334155; }
+    header h1 { color: var(--primary); font-size: 2rem; margin-bottom: 0.5rem; }
+    header p { color: var(--text-muted); }
+
+    .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+
+    .card { background: var(--card-bg); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; border: 1px solid #334155; }
+    
+    .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin: 1rem 0; }
+    .opt-btn { background: #334155; border: 1px solid #475569; color: var(--text-main); padding: 0.75rem; border-radius: 8px; cursor: pointer; width: 100%; text-align: left; }
+    .opt-btn.selected { background: var(--primary); color: #000; font-weight: bold; }
+
+    .controls { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
+    .search-box { flex: 1; min-width: 200px; }
+    .search-box input, select { width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #334155; background: var(--card-bg); color: #fff; }
+
+    .species-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; }
+    .species-card { background: var(--card-bg); border-radius: 10px; overflow: hidden; border: 1px solid #334155; }
+    .card-img { width: 100%; height: 160px; object-fit: cover; background: #000; }
+    .card-body { padding: 1rem; }
+    
+    #map { height: 350px; border-radius: 12px; border: 1px solid #334155; margin-top: 1rem; }
+  </style>
 </head>
 <body>
 
   <header>
-    <div class="container">
-      <div class="header-top">
-        <div class="logo-box">
-          <h1><i class="fa-solid fa-spider"></i> <span id="logoTitle">World Spider Guide</span></h1>
-        </div>
-        <button class="lang-btn" id="langToggleBtn"><i class="fa-solid fa-globe"></i> <span id="langBtnText">TR / EN</span></button>
-      </div>
-      <p id="heroSubtitle" class="text-muted">Global Spider Encyclopedia, Species Identification & Diagnostic Portal</p>
-    </div>
+    <h1><i class="fa-solid fa-spider"></i> World Spider Guide</h1>
+    <p>Türkiye ve Global Örümcek Veri Tabanı & Teşhis Portalı</p>
   </header>
 
   <div class="container">
     
-    <!-- Diagnostic Wizard Module -->
-    <div id="diagnostic-module" class="diag-card">
-      <div class="diag-header">
-        <h3><i class="fa-solid fa-user-nurse"></i> <span id="diagTitle">Interactive Bite & Symptom Diagnostic Guide</span></h3>
-        <div class="step-indicator">
-          <span class="step-dot active" id="dot1">1</span>
-          <span class="step-dot" id="dot2">2</span>
-          <span class="step-dot" id="dot3">3</span>
-          <span class="step-dot" id="dotResult"><i class="fa-solid fa-check"></i></span>
-        </div>
+    <!-- Diagnostik Rehber -->
+    <div class="card">
+      <h3><i class="fa-solid fa-user-nurse"></i> Hızlı Isırık Değerlendirme</h3>
+      <p style="color:var(--text-muted); font-size: 0.9rem; margin-top:0.25rem;">Gözlemlediğiniz ana semptomu seçiniz:</p>
+      
+      <div class="options-grid">
+        <button class="opt-btn" onclick="checkSymptom(this, 'safe')">Hafif Kaşıntı / Kızarıklık</button>
+        <button class="opt-btn" onclick="checkSymptom(this, 'danger')">Şiddetli Ağrı / Doku Morarması</button>
+        <button class="opt-btn" onclick="checkSymptom(this, 'danger')">Mide Bulantısı / Kas Krampları</button>
       </div>
-
-      <div class="diag-body">
-        <div class="diag-step active" id="step1">
-          <h4>Step 1: Select Location</h4>
-          <p class="step-desc">Where did the bite or encounter occur?</p>
-          <div class="option-grid">
-            <button class="opt-btn" onclick="selectLocation('North America')"><i class="fa-solid fa-earth-americas"></i> North America</button>
-            <button class="opt-btn" onclick="selectLocation('South America')"><i class="fa-solid fa-earth-americas"></i> South America</button>
-            <button class="opt-btn" onclick="selectLocation('Australia')"><i class="fa-solid fa-earth-oceania"></i> Australia</button>
-            <button class="opt-btn" onclick="selectLocation('Europe / Asia')"><i class="fa-solid fa-earth-europe"></i> Europe / Asia / Africa</button>
-          </div>
-        </div>
-
-        <div class="diag-step" id="step2">
-          <h4>Step 2: Primary Physical Symptoms</h4>
-          <p class="step-desc">Select all symptoms currently observed:</p>
-          <div class="symptom-checkboxes">
-            <label class="chk-label"><input type="checkbox" value="necrotic"> Blistering / Skin Necrosis / Dark Center</label>
-            <label class="chk-label"><input type="checkbox" value="cramps"> Severe Muscle Cramps / Abdominal Pain</label>
-            <label class="chk-label"><input type="checkbox" value="sweating"> Profuse Sweating / High Pulse</label>
-            <label class="chk-label"><input type="checkbox" value="mild"> Mild Swelling / Local Redness (Sting-like)</label>
-          </div>
-          <div class="step-actions">
-            <button class="btn-prev" onclick="goToStep(1)">Back</button>
-            <button class="btn-next" onclick="processSymptoms()">Next Step <i class="fa-solid fa-arrow-right"></i></button>
-          </div>
-        </div>
-
-        <div class="diag-step" id="step3">
-          <h4>Step 3: Visual Markings</h4>
-          <p class="step-desc">Did you notice any markings on the spider?</p>
-          <div class="option-grid">
-            <button class="opt-btn" onclick="selectVisual('violin')">Violin-shaped mark on back</button>
-            <button class="opt-btn" onclick="selectVisual('hourglass')">Red/Orange hourglass on abdomen</button>
-            <button class="opt-btn" onclick="selectVisual('large-hairy')">Very large, hairy body</button>
-            <button class="opt-btn" onclick="selectVisual('unknown')">Unseen / Unknown</button>
-          </div>
-          <div class="step-actions">
-            <button class="btn-prev" onclick="goToStep(2)">Back</button>
-          </div>
-        </div>
-
-        <div class="diag-step" id="stepResult">
-          <div id="resultContent"></div>
-          <p class="med-disclaimer">
-            <i class="fa-solid fa-triangle-exclamation"></i> <strong>Medical Disclaimer:</strong> This guide is for educational identification only. Seek professional emergency medical care for severe symptoms.
-          </p>
-          <button class="btn-prev" style="margin-top: 15px;" onclick="resetDiagnostic()"><i class="fa-solid fa-rotate-left"></i> Start New Diagnostic</button>
-        </div>
-      </div>
+      <div id="diag-out" style="margin-top:1rem; font-weight:bold;"></div>
     </div>
 
-    <!-- Search & Filter Controls -->
-    <h2 class="section-title"><i class="fa-solid fa-filter"></i> <span id="secCatalog">Global Species Directory</span></h2>
-    <div class="controls-panel">
+    <!-- Veri Tabanı ve Arama -->
+    <h2><i class="fa-solid fa-database"></i> Türler Dizini</h2>
+    <div class="controls" style="margin-top: 1rem;">
       <div class="search-box">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" id="searchInput" placeholder="Search by name, scientific name...">
+        <input type="text" id="searchInput" placeholder="Tür adı ara (ör: Latrodectus)..." oninput="filterData()">
       </div>
-      <div class="filter-group">
-        <select id="venomFilter" class="filter-select">
-          <option value="all">All Venom Ratings</option>
-          <option value="safe">🟢 Low Risk / Non-dangerous</option>
-          <option value="warn">🟡 Mild Venom</option>
-          <option value="danger">🔴 Medically Significant</option>
-        </select>
-        <select id="continentFilter" class="filter-select">
-          <option value="all">All Continents</option>
-          <option value="North America">North America</option>
-          <option value="South America">South America</option>
-          <option value="Australia">Australia</option>
-          <option value="Europe / Asia">Europe / Asia</option>
-        </select>
-      </div>
+      <select id="venomFilter" onchange="filterData()">
+        <option value="all">Tüm Zehir Seviyeleri</option>
+        <option value="danger">🔴 Tehlikeli (Tıbbi Önemli)</option>
+        <option value="safe">🟢 Zararsız / Düşük Risk</option>
+      </select>
     </div>
 
-    <!-- Spider Grid -->
-    <div class="spider-grid" id="spiderGrid"></div>
+    <div class="species-grid" id="speciesGrid"></div>
 
-    <!-- Map Section -->
-    <h2 class="section-title"><i class="fa-solid fa-earth-americas"></i> <span id="secMap">Interactive Habitat Map</span></h2>
-    <div id="map-container"></div>
+    <!-- Harita -->
+    <h2 style="margin-top: 2rem;"><i class="fa-solid fa-map-location-dot"></i> Dağılım Haritası</h2>
+    <div id="map"></div>
 
   </div>
 
-  <!-- Detail Modal -->
-  <div class="modal-overlay" id="detailModal">
-    <div class="modal-content">
-      <span class="modal-close" id="modalCloseBtn">&times;</span>
-      <h2 id="modalTitle"></h2>
-      <p id="modalLatin" class="modal-latin"></p>
-      <div id="modalBody"></div>
-    </div>
-  </div>
-
-  <!-- Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="js/app.js"></script>
+  <script>
+    const speciesData = [
+      { name: "Latrodectus tredecimguttatus", common: "Kara Dul Örümceği", venom: "danger", region: "Türkiye", img: "https://images.unsplash.com/photo-1591189863430-ab87e120f312?auto=format&fit=crop&w=600&q=80", lat: 39.16, lng: 35.35 },
+      { name: "Loxosceles rufescens", common: "Akdeniz Keman Örümceği", venom: "danger", region: "Türkiye", img: "https://images.unsplash.com/photo-1579273166152-d725a4e2b755?auto=format&fit=crop&w=600&q=80", lat: 38.42, lng: 27.14 },
+      { name: "Araneus diadematus", common: "Haçlı Bahçe Örümceği", venom: "safe", region: "Global", img: "https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&w=600&q=80", lat: 41.00, lng: 28.97 }
+    ];
+
+    function checkSymptom(btn, type) {
+      document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      const out = document.getElementById('diag-out');
+      if(type === 'danger') {
+        out.innerHTML = "⚠️ Tıbbi önem taşıyan semptom! En yakın sağlık kuruluşuna başvurun.";
+        out.style.color = "var(--danger)";
+      } else {
+        out.innerHTML = "🟢 Düşük riskli reaksiyon. Bölgeyi sabunlu suyla yıkayıp gözlemleyin.";
+        out.style.color = "var(--safe)";
+      }
+    }
+
+    function filterData() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const venom = document.getElementById('venomFilter').value;
+
+      const filtered = speciesData.filter(s => {
+        const matchSearch = s.name.toLowerCase().includes(search) || s.common.toLowerCase().includes(search);
+        const matchVenom = venom === 'all' || s.venom === venom;
+        return matchSearch && matchVenom;
+      });
+
+      renderGrid(filtered);
+    }
+
+    function renderGrid(data) {
+      const grid = document.getElementById('speciesGrid');
+      grid.innerHTML = '';
+      data.forEach(item => {
+        grid.innerHTML += `
+          <div class="species-card">
+            <img src="${item.img}" class="card-img" alt="${item.name}">
+            <div class="card-body">
+              <h4>${item.common}</h4>
+              <p style="font-style:italic; color:var(--text-muted); font-size:0.85rem;">${item.name}</p>
+              <p style="font-size:0.8rem; margin-top:0.5rem;">📍 ${item.region}</p>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    window.onload = () => {
+      renderGrid(speciesData);
+      const map = L.map('map').setView([39.0, 35.0], 5);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+      speciesData.forEach(item => {
+        L.marker([item.lat, item.lng]).addTo(map).bindPopup(`<b>${item.common}</b>`);
+      });
+    };
+  </script>
 </body>
 </html>
